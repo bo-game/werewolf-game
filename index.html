@@ -1,0 +1,3057 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>狼人杀 · 暗夜对局</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+/* ====================================================================
+   狼人杀 · 暗夜对局 - 主样式表
+   结构:
+   1.  CSS 变量 (主题色 / 字体 / 间距)
+   2.  基础重置 & 通用样式
+   3.  通用组件 (按钮 / 容器 / 章节标题)
+   4.  导航栏
+   5.  首页 Banner (血月 / 雾 / 余烬)
+   6.  角色图鉴 (悬浮弹窗)
+   7.  游戏规则
+   8.  对局截图 (灯箱)
+   9.  页脚
+   10. 响应式适配
+   11. 滚动动画
+   ==================================================================== */
+
+/* ==================== 1. CSS 变量 (方便统一修改) ==================== */
+:root {
+  /* 主色调: 深红 / 黑 */
+  --color-bg-darkest: #050507;        /* 最深背景 */
+  --color-bg-dark:    #0a0a0f;        /* 主背景 */
+  --color-bg-card:    #14090c;        /* 卡片背景 (带红调) */
+  --color-bg-elevated:#1a0e10;        /* 抬升层背景 */
+
+  /* 红色系 */
+  --color-blood:      #c1272d;        /* 血红主色 */
+  --color-blood-bright:#e63946;       /* 高亮红 */
+  --color-blood-glow: #ff2a2a;        /* 发光红 */
+  --color-blood-dark: #7a1518;        /* 暗红 */
+
+  /* 辅助色 */
+  --color-gold:       #d4af37;        /* 金色 (神职/高亮) */
+  --color-silver:     #8a8a8a;        /* 银色 (次要文字) */
+
+  /* 文字 */
+  --color-text:       #e8e6e3;        /* 主文字 */
+  --color-text-muted: #8a8580;        /* 次要文字 */
+
+  /* 边框 */
+  --color-border:     #2a1a1c;        /* 卡片边框 */
+  --color-border-light:#3a2a2c;      /* 高亮边框 */
+
+  /* 字体 */
+  --font-display: 'Cinzel', 'Noto Sans SC', serif;     /* 标题 */
+  --font-body:    'Noto Sans SC', sans-serif;          /* 正文 */
+
+  /* 圆角 */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+
+  /* 间距 */
+  --space-section: 100px;            /* 章节上下间距 */
+
+  /* 阴影 */
+  --shadow-card: 0 10px 40px rgba(0,0,0,0.6);
+  --shadow-glow: 0 0 40px rgba(193,39,45,0.4);
+}
+
+/* ==================== 2. 基础重置 & 通用样式 ==================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;             /* 锚点跳转平滑 */
+  scroll-padding-top: 70px;            /* 顶部留出导航栏空间 */
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg-darkest);
+  color: var(--color-text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--color-bg-darkest); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-blood-dark);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-blood); }
+
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+ul { list-style: none; }
+
+/* ==================== 3. 通用组件 ==================== */
+
+/* 内容容器 */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* 章节通用 */
+.section {
+  padding: var(--space-section) 0;
+  position: relative;
+}
+
+/* 章节标题 */
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+.section-eyebrow {
+  font-family: var(--font-display);
+  color: var(--color-blood);
+  letter-spacing: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--color-text);
+  margin-bottom: 16px;
+  text-shadow: 0 2px 20px rgba(193,39,45,0.5);
+}
+.section-subtitle {
+  color: var(--color-text-muted);
+  font-size: 16px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* 按钮 */
+.btn {
+  display: inline-block;
+  padding: 14px 32px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-blood), var(--color-blood-dark));
+  color: #fff;
+  border-color: var(--color-blood);
+  box-shadow: 0 4px 20px rgba(193,39,45,0.4);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(193,39,45,0.6);
+  background: linear-gradient(135deg, var(--color-blood-bright), var(--color-blood));
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border-light);
+}
+.btn-ghost:hover {
+  border-color: var(--color-blood);
+  color: var(--color-blood-bright);
+  background: rgba(193,39,45,0.08);
+}
+
+/* ==================== 4. 导航栏 ==================== */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 18px 0;
+  transition: all 0.4s ease;
+  background: transparent;
+}
+.navbar.scrolled {
+  background: rgba(5,5,7,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
+  padding: 12px 0;
+}
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: 1px;
+  color: var(--color-text);
+}
+.logo-icon { color: var(--color-blood-bright); font-size: 22px; }
+.nav-menu {
+  display: flex;
+  gap: 36px;
+}
+.nav-link {
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--color-text-muted);
+  transition: color 0.3s ease;
+  position: relative;
+  padding: 4px 0;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 0; height: 2px;
+  background: var(--color-blood);
+  transition: width 0.3s ease;
+}
+.nav-link:hover { color: var(--color-text); }
+.nav-link:hover::after { width: 100%; }
+.nav-link.active-link { color: var(--color-blood-bright); }
+.nav-link.active-link::after { width: 100%; }
+
+/* 移动端菜单按钮 */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+}
+.nav-toggle span {
+  display: block;
+  width: 26px;
+  height: 2px;
+  background: var(--color-text);
+  transition: all 0.3s ease;
+}
+.nav-toggle.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle.active span:nth-child(2) { opacity: 0; }
+.nav-toggle.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ==================== 5. 首页 Banner ==================== */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(193,39,45,0.18) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0405 0%, #050507 100%);
+}
+
+/* Banner 背景层 */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* 血月: 纯 CSS 绘制 */
+.blood-moon {
+  position: absolute;
+  top: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff5544 0%, #c1272d 35%, #7a1518 70%, #3a0a0c 100%);
+  box-shadow:
+    0 0 80px rgba(193,39,45,0.6),
+    0 0 160px rgba(193,39,45,0.4),
+    inset -20px -20px 40px rgba(0,0,0,0.4);
+  opacity: 0.85;
+  animation: moonPulse 8s ease-in-out infinite;
+}
+@keyframes moonPulse {
+  0%, 100% { box-shadow: 0 0 80px rgba(193,39,45,0.6), 0 0 160px rgba(193,39,45,0.4), inset -20px -20px 40px rgba(0,0,0,0.4); }
+  50%      { box-shadow: 0 0 120px rgba(193,39,45,0.8), 0 0 220px rgba(193,39,45,0.5), inset -20px -20px 40px rgba(0,0,0,0.4); }
+}
+
+/* 雾气: 多层渐变缓慢移动 */
+.fog {
+  position: absolute;
+  width: 200%;
+  height: 60%;
+  left: -50%;
+  background: radial-gradient(ellipse, rgba(50,30,30,0.4) 0%, transparent 60%);
+  filter: blur(20px);
+}
+.fog-1 { bottom: -10%; animation: fogMove 30s linear infinite; }
+.fog-2 { top: 30%; animation: fogMove 40s linear infinite reverse; opacity: 0.6; }
+@keyframes fogMove {
+  0%   { transform: translateX(-10%); }
+  100% { transform: translateX(10%); }
+}
+
+/* 余烬粒子: CSS 多层 box-shadow */
+.embers {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow:
+    50px -100px 0 0 #ff5544, 150px -200px 0 0 #c1272d,
+    300px -150px 0 0 #ff7755, 450px -250px 0 0 #c1272d,
+    600px -180px 0 0 #ff5544, 750px -300px 0 0 #e63946,
+    900px -220px 0 0 #ff5544, 1050px -280px 0 0 #c1272d,
+    1200px -160px 0 0 #ff7755, 200px -350px 0 0 #e63946,
+    500px -400px 0 0 #ff5544, 800px -380px 0 0 #c1272d,
+    1100px -420px 0 0 #ff7755, 100px -280px 0 0 #e63946;
+  animation: emberFloat 12s linear infinite;
+  opacity: 0.7;
+}
+@keyframes emberFloat {
+  0%   { transform: translateY(0); opacity: 0.7; }
+  100% { transform: translateY(-200px); opacity: 0; }
+}
+
+/* Banner 内容 */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 0 24px;
+  animation: heroFadeIn 1.4s ease-out;
+}
+@keyframes heroFadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-tagline {
+  font-family: var(--font-display);
+  color: var(--color-blood);
+  letter-spacing: 8px;
+  font-size: 13px;
+  margin-bottom: 24px;
+  opacity: 0.9;
+}
+.hero-title {
+  font-family: var(--font-display);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.title-main {
+  font-size: clamp(56px, 12vw, 130px);
+  font-weight: 800;
+  letter-spacing: 8px;
+  line-height: 1;
+  background: linear-gradient(180deg, #fff 0%, #ff5544 60%, #c1272d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 40px rgba(193,39,45,0.5);
+}
+.title-divider {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-blood), transparent);
+}
+.title-sub {
+  font-size: clamp(22px, 4vw, 40px);
+  font-weight: 400;
+  letter-spacing: 12px;
+  color: var(--color-text);
+  opacity: 0.85;
+}
+.hero-desc {
+  color: var(--color-text-muted);
+  font-size: 17px;
+  line-height: 1.9;
+  margin-bottom: 40px;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hero-cta {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* 滚动指示器 */
+.scroll-indicator {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 3px;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+.mouse {
+  width: 24px; height: 38px;
+  border: 2px solid var(--color-text-muted);
+  border-radius: 12px;
+  position: relative;
+}
+.wheel {
+  position: absolute;
+  top: 8px; left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 8px;
+  background: var(--color-blood);
+  border-radius: 2px;
+  animation: wheelMove 1.5s ease-in-out infinite;
+}
+@keyframes wheelMove {
+  0%   { top: 8px; opacity: 1; }
+  100% { top: 22px; opacity: 0; }
+}
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-6px); }
+}
+
+/* ==================== 6. 角色图鉴 ==================== */
+.characters {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(193,39,45,0.06) 0%, transparent 50%),
+    var(--color-bg-darkest);
+}
+
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+/* 角色卡片 */
+.character-card {
+  position: relative;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+  aspect-ratio: 3 / 4;
+}
+.character-card:hover,
+.character-card.active {
+  transform: translateY(-8px);
+  border-color: var(--color-blood);
+  box-shadow: var(--shadow-card), var(--shadow-glow);
+}
+
+/* 卡片图片 */
+.card-image {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.card-image img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease, filter 0.4s ease;
+}
+.character-card:hover .card-image img,
+.character-card.active .card-image img {
+  transform: scale(1.08);
+  filter: brightness(0.5) saturate(1.2);
+}
+
+/* 卡片底部信息 (默认状态) */
+.card-body {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 20px;
+  background: linear-gradient(to top, rgba(5,5,7,0.95) 30%, transparent);
+  transition: opacity 0.4s ease;
+}
+.character-card:hover .card-body,
+.character-card.active .card-body {
+  opacity: 0;
+}
+
+/* 角色标签 (阵营) */
+.role-tag {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.tag-wolf { background: rgba(193,39,45,0.2); color: var(--color-blood-bright); border: 1px solid var(--color-blood); }
+.tag-good { background: rgba(212,175,55,0.15); color: var(--color-gold); border: 1px solid rgba(212,175,55,0.4); }
+
+.card-name {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+  color: var(--color-text);
+}
+.card-tagline {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  letter-spacing: 1px;
+}
+
+/* 悬浮弹窗: 技能介绍 (从底部滑入) */
+.skill-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px;
+  background: linear-gradient(to top, rgba(5,5,7,0.98) 70%, rgba(5,5,7,0.6) 100%);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+.character-card:hover .skill-overlay,
+.character-card.active .skill-overlay {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.skill-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 1.5px;
+  color: var(--color-blood-bright);
+  margin: 12px 0 10px;
+  font-weight: 600;
+}
+.skill-desc {
+  font-size: 13px;
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+/* ==================== 7. 游戏规则 ==================== */
+.rules {
+  background: var(--color-bg-dark);
+}
+.rules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+.rule-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 32px 28px;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.rule-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-blood-dark);
+  box-shadow: var(--shadow-card);
+}
+.rule-icon {
+  font-size: 32px;
+  margin-bottom: 16px;
+  display: inline-block;
+  width: 56px; height: 56px;
+  line-height: 56px;
+  text-align: center;
+  border-radius: 50%;
+  background: rgba(193,39,45,0.12);
+  border: 1px solid var(--color-border-light);
+}
+.rule-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--color-text);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+.rule-content p {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+  line-height: 1.8;
+}
+.rule-content p strong { color: var(--color-blood-bright); font-weight: 500; }
+.highlight-red { color: var(--color-blood-bright); font-weight: 600; }
+.glossary .term { color: var(--color-gold); font-weight: 600; margin-right: 6px; }
+
+/* ==================== 8. 对局截图 ==================== */
+.screenshots {
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(193,39,45,0.06) 0%, transparent 50%),
+    var(--color-bg-darkest);
+}
+.screenshot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+.screenshot-item {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-card);
+}
+.screenshot-item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease, filter 0.4s ease;
+}
+.screenshot-item:hover img {
+  transform: scale(1.06);
+  filter: brightness(0.7);
+}
+.screenshot-item figcaption {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 20px;
+  background: linear-gradient(to top, rgba(5,5,7,0.98) 50%, transparent);
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+.screenshot-item:hover figcaption {
+  transform: translateY(0);
+  opacity: 1;
+}
+.caption-tag {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--color-blood-bright);
+  padding: 2px 8px;
+  border: 1px solid var(--color-blood);
+  border-radius: 3px;
+  margin-bottom: 8px;
+}
+.screenshot-item figcaption h4 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+.screenshot-item figcaption p {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* 灯箱 (图片放大查看) */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  padding: 40px;
+}
+.lightbox.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lightbox img {
+  max-width: 90%;
+  max-height: 90vh;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 60px rgba(193,39,45,0.4);
+}
+.lightbox-close {
+  position: absolute;
+  top: 24px; right: 32px;
+  background: none;
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text);
+  font-size: 32px;
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  line-height: 1;
+}
+.lightbox-close:hover {
+  border-color: var(--color-blood);
+  color: var(--color-blood-bright);
+  transform: rotate(90deg);
+}
+
+/* ==================== 9. 页脚 ==================== */
+.footer {
+  background: var(--color-bg-darkest);
+  border-top: 1px solid var(--color-border);
+  padding: 80px 0 32px;
+  position: relative;
+}
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  width: 200px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-blood), transparent);
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+  margin-bottom: 60px;
+}
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--color-blood-bright);
+  margin-bottom: 16px;
+}
+.footer-about p {
+  color: var(--color-text-muted);
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+.footer-meta {
+  font-size: 12px !important;
+  color: var(--color-blood-dark) !important;
+  font-style: italic;
+}
+.footer-heading {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--color-text);
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+.footer-list li {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+.footer-list a {
+  transition: color 0.3s ease;
+}
+.footer-list a:hover { color: var(--color-blood-bright); }
+.footer-bottom {
+  text-align: center;
+  padding-top: 32px;
+  border-top: 1px solid var(--color-border);
+}
+.footer-bottom p {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+}
+.footer-quote {
+  font-family: var(--font-display);
+  color: var(--color-blood) !important;
+  font-style: italic;
+  letter-spacing: 1px;
+}
+
+/* ==================== 10. 回到顶部 ==================== */
+.back-to-top {
+  position: fixed;
+  bottom: 30px; right: 30px;
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--color-blood);
+  color: #fff;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  z-index: 90;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(193,39,45,0.5);
+}
+.back-to-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.back-to-top:hover {
+  background: var(--color-blood-bright);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(193,39,45,0.7);
+}
+
+/* ==================== 11. 滚动渐入动画 ==================== */
+/* JS 通过 IntersectionObserver 添加 .visible 触发 */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==================== 12. 响应式适配 ==================== */
+
+/* 平板及以下 */
+@media (max-width: 900px) {
+  :root { --space-section: 70px; }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .footer-about { grid-column: 1 / -1; }
+}
+
+/* 移动端 */
+@media (max-width: 700px) {
+  :root { --space-section: 56px; }
+
+  /* 移动端导航: 折叠菜单 */
+  .nav-menu {
+    position: fixed;
+    top: 0; right: 0;
+    width: 70%;
+    max-width: 320px;
+    height: 100vh;
+    background: rgba(5,5,7,0.98);
+    backdrop-filter: blur(20px);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 28px;
+    transform: translateX(100%);
+    transition: transform 0.4s ease;
+    border-left: 1px solid var(--color-border);
+  }
+  .nav-menu.active { transform: translateX(0); }
+  .nav-menu .nav-link { font-size: 18px; }
+  .nav-toggle { display: flex; }
+
+  /* Banner 标题间距缩小 */
+  .title-main { letter-spacing: 4px; }
+  .title-sub  { letter-spacing: 6px; }
+  .hero-cta .btn { padding: 12px 24px; font-size: 13px; }
+
+  /* 角色卡片: 单列 */
+  .character-grid { grid-template-columns: 1fr; max-width: 360px; margin: 0 auto; }
+
+  /* 规则卡片: 单列 */
+  .rules-grid { grid-template-columns: 1fr; }
+
+  /* 截图: 单列 */
+  .screenshot-grid { grid-template-columns: 1fr; }
+
+  /* 页脚: 单列 */
+  .footer-grid { grid-template-columns: 1fr; }
+
+  /* 回到顶部按钮位置调整 */
+  .back-to-top { bottom: 20px; right: 20px; width: 42px; height: 42px; }
+
+  /* 血月缩小 */
+  .blood-moon { width: 220px; height: 220px; top: 8%; }
+}
+
+/* 超小屏 */
+@media (max-width: 380px) {
+  .hero-title { gap: 10px; }
+  .hero-cta { flex-direction: column; align-items: center; }
+  .hero-cta .btn { width: 100%; max-width: 240px; text-align: center; }
+}
+
+/* prefers-reduced-motion: 尊重用户系统偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+}
+
+/* ====================================================================
+   狼人杀 · 单机游戏 - 专用样式
+   复用 style.css 的 CSS 变量与按钮/字体等通用样式
+   本文件只补充游戏专用布局:
+   1.  游戏页面主体
+   2.  顶部状态栏
+   3.  圆桌与座位 (9 人环形布局)
+   4.  座位状态 (存活/死亡/自己/可选/选中/狼同伴)
+   5.  中央信息区
+   6.  操作面板
+   7.  对局记录
+   8.  阶段过渡横幅
+   9.  通用弹窗
+   10. 响应式 (移动端切换为网格座位)
+   ==================================================================== */
+
+/* ==================== 1. 游戏页面主体 ==================== */
+.game-page {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(193,39,45,0.10) 0%, transparent 50%),
+    var(--color-bg-darkest);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+.game-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 90px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 导航右侧状态文字 */
+.nav-status {
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--color-blood-bright);
+}
+
+/* ==================== 2. 顶部状态栏 ==================== */
+.game-status-bar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.status-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 18px;
+  border-right: 1px solid var(--color-border);
+}
+.status-item:last-child { border-right: none; }
+.status-label {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+.status-value {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* ==================== 3. 圆桌与座位 ==================== */
+.game-board {
+  --board-size: clamp(320px, 88vmin, 560px);
+  --seat-radius: calc(var(--board-size) / 2 - 60px);
+  position: relative;
+  width: var(--board-size);
+  height: var(--board-size);
+  margin: 10px auto;
+}
+
+/* 中央信息区 */
+.game-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 1;
+  width: 60%;
+}
+.center-icon {
+  font-size: 48px;
+  color: var(--color-blood);
+  margin-bottom: 8px;
+  text-shadow: 0 0 30px rgba(193,39,45,0.7);
+  animation: centerGlow 3s ease-in-out infinite;
+}
+@keyframes centerGlow {
+  0%, 100% { text-shadow: 0 0 30px rgba(193,39,45,0.7); }
+  50%      { text-shadow: 0 0 50px rgba(193,39,45,1); }
+}
+.center-text {
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+/* 座位定位 (环形) */
+.player-seat {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 88px;
+  transform:
+    translate(-50%, -50%)
+    rotate(var(--angle, 0deg))
+    translateY(calc(-1 * var(--seat-radius)))
+    rotate(calc(-1 * var(--angle, 0deg)));
+  z-index: 2;
+}
+
+/* 座位卡片 */
+.seat-inner {
+  position: relative;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+.seat-number {
+  position: absolute;
+  top: 4px; left: 6px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  color: var(--color-text-muted);
+  letter-spacing: 1px;
+}
+.seat-avatar {
+  font-size: 28px;
+  filter: grayscale(0.3);
+}
+.seat-name {
+  font-size: 11px;
+  color: var(--color-text);
+  font-weight: 500;
+}
+.seat-role-badge {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  min-height: 12px;
+}
+.seat-vote {
+  position: absolute;
+  top: -8px; right: -8px;
+  background: var(--color-blood);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+}
+
+/* ==================== 4. 座位状态 ==================== */
+/* 死亡: 灰暗 + 划线 */
+.player-seat.dead .seat-inner {
+  opacity: 0.45;
+  filter: grayscale(1);
+  border-color: var(--color-border);
+}
+.player-seat.dead .seat-avatar::after {
+  content: '✕';
+  position: absolute;
+  font-size: 40px;
+  color: var(--color-blood);
+  font-weight: 900;
+}
+
+/* 自己: 金色边框 + 发光 */
+.player-seat.self .seat-inner {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 20px rgba(212,175,55,0.4);
+}
+
+/* 狼人同伴 (人类为狼时可见): 红色边框 */
+.player-seat.wolf-ally .seat-inner {
+  border-color: var(--color-blood);
+  box-shadow: 0 0 12px rgba(193,39,45,0.5);
+}
+
+/* 可选目标: 脉冲红边框 + 指针 */
+.player-seat.selectable {
+  cursor: pointer;
+}
+.player-seat.selectable .seat-inner {
+  border-color: var(--color-blood-bright);
+  animation: pulseSelectable 1.2s ease-in-out infinite;
+}
+@keyframes pulseSelectable {
+  0%, 100% { box-shadow: 0 0 8px rgba(230,57,70,0.5); }
+  50%      { box-shadow: 0 0 24px rgba(230,57,70,0.9); }
+}
+
+/* 选中: 红色高亮 */
+.player-seat.selected .seat-inner {
+  border-color: var(--color-blood-glow);
+  background: rgba(193,39,45,0.25);
+  box-shadow: 0 0 30px rgba(255,42,42,0.7);
+}
+
+/* 发言中: 轻微脉动 */
+.player-seat.speaking .seat-inner {
+  border-color: var(--color-gold);
+  animation: pulseSpeak 1s ease-in-out infinite;
+}
+@keyframes pulseSpeak {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
+}
+
+/* 显示票数 */
+.player-seat.show-votes .seat-vote {
+  display: flex;
+}
+
+/* ==================== 5. 操作面板 ==================== */
+.action-panel {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  text-align: center;
+}
+.action-prompt {
+  font-size: 15px;
+  color: var(--color-text);
+  line-height: 1.6;
+  max-width: 600px;
+}
+.action-prompt strong { color: var(--color-blood-bright); }
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ==================== 6. 对局记录 ==================== */
+.game-log {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  max-height: 280px;
+  display: flex;
+  flex-direction: column;
+}
+.log-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: var(--color-blood-bright);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+.log-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.log-entry {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  padding: 6px 10px;
+  margin-bottom: 4px;
+  border-left: 3px solid var(--color-border);
+  line-height: 1.6;
+  background: rgba(0,0,0,0.2);
+  border-radius: 0 4px 4px 0;
+  animation: logFadeIn 0.4s ease;
+}
+@keyframes logFadeIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.log-entry.log-night   { border-left-color: #4a6fa5; color: #c5d1e6; }
+.log-entry.log-day     { border-left-color: var(--color-gold); color: #f0e0c0; }
+.log-entry.log-death   { border-left-color: var(--color-blood); color: #f0c0c0; font-weight: 500; }
+.log-entry.log-vote    { border-left-color: var(--color-blood-dark); }
+.log-entry.log-system  { border-left-color: var(--color-blood-bright); color: var(--color-text); font-weight: 500; }
+
+/* ==================== 7. 阶段过渡横幅 ==================== */
+.phase-banner {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: clamp(28px, 6vw, 56px);
+  letter-spacing: 6px;
+  font-weight: 700;
+  color: var(--color-text);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  text-shadow: 0 4px 30px rgba(0,0,0,0.8);
+}
+.phase-banner.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.phase-banner.night {
+  background: radial-gradient(ellipse, rgba(20,30,70,0.92) 0%, rgba(5,5,10,0.98) 100%);
+}
+.phase-banner.day {
+  background: radial-gradient(ellipse, rgba(140,90,40,0.92) 0%, rgba(40,20,10,0.98) 100%);
+  color: #ffd9a0;
+}
+
+/* ==================== 8. 通用弹窗 ==================== */
+.game-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  padding: 20px;
+}
+.game-modal.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.88);
+  backdrop-filter: blur(10px);
+}
+.modal-content {
+  position: relative;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: 36px 32px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-card), var(--shadow-glow);
+  animation: modalIn 0.4s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--color-text);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+.modal-body {
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+.modal-body p { margin-bottom: 8px; }
+.modal-body strong { color: var(--color-text); }
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* 身份揭晓特定样式 */
+.role-reveal { padding: 8px 0; }
+.reveal-tag {
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+.reveal-icon {
+  font-size: 64px;
+  margin: 8px 0 12px;
+  filter: drop-shadow(0 0 20px rgba(193,39,45,0.6));
+}
+.reveal-icon.tag-wolf { color: var(--color-blood-bright); }
+.reveal-icon.tag-good { color: var(--color-gold); }
+
+/* 身份揭晓立绘 (复用首页角色图鉴的 AI 立绘) */
+.reveal-img-wrap {
+  width: 150px;
+  height: 150px;
+  margin: 8px auto 16px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--color-border-light);
+  box-shadow: 0 0 24px rgba(193,39,45,0.4);
+  position: relative;
+}
+.reveal-img-wrap.tag-wolf {
+  border-color: var(--color-blood);
+  box-shadow: 0 0 28px rgba(193,39,45,0.7);
+}
+.reveal-img-wrap.tag-good {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 28px rgba(212,175,55,0.55);
+}
+.reveal-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.reveal-name {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  margin-bottom: 6px;
+}
+.reveal-name.tag-wolf { color: var(--color-blood-bright); }
+.reveal-name.tag-good { color: var(--color-gold); }
+.reveal-faction {
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--color-text-muted);
+  margin-bottom: 16px;
+}
+.reveal-desc {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: rgba(0,0,0,0.3);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-blood);
+}
+.reveal-ally {
+  font-size: 14px;
+  color: var(--color-blood-bright);
+  font-weight: 600;
+}
+
+/* 查验结果 */
+.check-result {
+  font-size: 17px;
+  padding: 16px;
+}
+.check-result .tag-wolf,
+.check-result .tag-good {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  border: 1px solid;
+  margin-left: 6px;
+}
+
+/* 游戏结束 */
+.game-over { padding: 8px 0; }
+.over-result {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  margin-bottom: 14px;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+}
+.over-result.tag-wolf {
+  color: var(--color-blood-bright);
+  background: rgba(193,39,45,0.15);
+  border: 1px solid var(--color-blood);
+}
+.over-result.tag-good {
+  color: var(--color-gold);
+  background: rgba(212,175,55,0.12);
+  border: 1px solid rgba(212,175,55,0.4);
+}
+.over-msg { color: var(--color-text-muted); margin-bottom: 12px; }
+.over-role { color: var(--color-text); font-weight: 600; }
+
+/* 发言文本框 (自由输入发言) */
+.speak-input {
+  width: 100%;
+  min-height: 80px;
+  background: var(--color-bg-darkest);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  padding: 12px 14px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  resize: vertical;
+  margin-top: 12px;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.speak-input:focus {
+  border-color: var(--color-blood);
+  box-shadow: 0 0 14px rgba(193,39,45,0.35);
+}
+.speak-input::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.55;
+}
+
+/* ==================== 9. 响应式 (移动端网格座位) ==================== */
+@media (max-width: 700px) {
+  .game-main { padding: 80px 14px 30px; }
+  /* 圆桌 → 3 列网格 */
+  .game-board {
+    --board-size: auto;
+    width: 100%;
+    height: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 8px auto;
+  }
+  .player-seat {
+    position: relative;
+    top: auto; left: auto;
+    transform: none;
+    width: 100%;
+  }
+  /* 中央信息区移到顶部 */
+  .game-center {
+    position: relative;
+    top: auto; left: auto;
+    transform: none;
+    width: 100%;
+    grid-column: 1 / -1;
+    padding: 16px;
+    order: -1;
+  }
+  /* 座位卡片加宽 */
+  .seat-inner { padding: 10px 4px; }
+  .seat-avatar { font-size: 32px; }
+  .seat-name { font-size: 12px; }
+
+  /* 状态栏紧凑 */
+  .status-item { padding: 4px 12px; }
+  .status-value { font-size: 16px; }
+}
+
+/* 超小屏 */
+@media (max-width: 380px) {
+  .game-board { gap: 8px; }
+  .seat-inner { padding: 8px 2px; }
+  .seat-avatar { font-size: 26px; }
+}
+
+/* prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .player-seat.selectable .seat-inner,
+  .player-seat.speaking .seat-inner,
+  .center-icon { animation: none; }
+}
+
+  </style>
+</head>
+<body>
+
+<div id="home-view">
+
+
+  <!-- ====================================================================
+       顶部导航栏 (固定,滚动时变深)
+       ==================================================================== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="#home" class="nav-logo">
+        <span class="logo-icon">☾</span>
+        <span class="logo-text">暗夜对局</span>
+      </a>
+      <ul class="nav-menu" id="navMenu">
+        <li><a href="#home" class="nav-link">首页</a></li>
+        <li><a href="#characters" class="nav-link">角色</a></li>
+        <li><a href="#rules" class="nav-link">规则</a></li>
+        <li><a href="#screenshots" class="nav-link">实录</a></li>
+        <li><a href="#about" class="nav-link">关于</a></li>
+      </ul>
+      <button class="nav-toggle" id="navToggle" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ====================================================================
+       板块 1: 首页大 Banner
+       ==================================================================== -->
+  <section id="home" class="hero">
+    <!-- 背景层: 血月 + 雾气 + 余烬粒子 -->
+    <div class="hero-bg">
+      <div class="blood-moon"></div>
+      <div class="fog fog-1"></div>
+      <div class="fog fog-2"></div>
+      <div class="embers"></div>
+    </div>
+
+    <!-- 主标题内容 -->
+    <div class="hero-content">
+      <p class="hero-tagline">— DARK NIGHT BOARD GAME —</p>
+      <h1 class="hero-title">
+        <span class="title-main">狼人杀</span>
+        <span class="title-divider"></span>
+        <span class="title-sub">暗夜对局</span>
+      </h1>
+      <p class="hero-desc">月光浸染村庄,谁是潜伏的恶狼?<br>一场关于信任、谎言与推理的暗夜博弈。</p>
+      <div class="hero-cta">
+        <a href="game.html" class="btn btn-primary">⚔ 开始游戏</a>
+        <a href="#characters" class="btn btn-ghost">查看角色</a>
+        <a href="#rules" class="btn btn-ghost">了解规则</a>
+      </div>
+    </div>
+
+    <!-- 滚动指示器 -->
+    <a href="#characters" class="scroll-indicator" aria-label="向下滚动">
+      <span class="mouse"><span class="wheel"></span></span>
+      <span class="scroll-text">SCROLL</span>
+    </a>
+  </section>
+
+  <!-- ====================================================================
+       板块 2: 角色图鉴
+       悬浮卡片显示技能介绍 (CSS hover + JS 移动端点击)
+       ==================================================================== -->
+  <section id="characters" class="section characters">
+    <div class="container">
+      <!-- 章节标题 -->
+      <div class="section-header">
+        <p class="section-eyebrow">CHARACTERS</p>
+        <h2 class="section-title">角色图鉴</h2>
+        <p class="section-subtitle">六种身份,各怀心机。鼠标悬浮卡片查看专属技能。</p>
+      </div>
+
+      <!-- 角色卡片网格 -->
+      <div class="character-grid">
+
+        <!-- 角色 1: 狼人 -->
+        <article class="character-card" data-faction="wolf">
+          <div class="card-image">
+            <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Dark%20fantasy%20werewolf%20portrait%2C%20glowing%20red%20eyes%2C%20sharp%20fangs%2C%20dark%20fur%2C%20blood%20moon%20background%2C%20gothic%20art%20style%2C%20dramatic%20lighting&image_size=square" alt="狼人" loading="lazy">
+          </div>
+          <div class="card-body">
+            <span class="role-tag tag-wolf">狼人阵营</span>
+            <h3 class="card-name">狼人</h3>
+            <p class="card-tagline">暗夜中的猎手</p>
+          </div>
+          <!-- 悬浮弹窗: 技能介绍 -->
+          <div class="skill-overlay">
+            <span class="role-tag tag-wolf">狼人阵营</span>
+            <h3 class="card-name">狼人</h3>
+            <div class="skill-title">⚔ 技能 · 夜袭</div>
+            <p class="skill-desc">每晚与同伴一起选择一名玩家进行击杀。白天则伪装成普通村民,通过发言混淆视听、嫁祸他人,引导舆论放逐好人。</p>
+          </div>
+        </article>
+
+        <!-- 角色 2: 平民 -->
+        <article class="character-card" data-faction="good">
+          <div class="card-image">
+            <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Medieval%20village%20commoner%20portrait%2C%20dark%20fantasy%20style%2C%20candlelight%2C%20fearful%20expression%2C%20plain%20clothes%2C%20gothic%20art&image_size=square" alt="平民" loading="lazy">
+          </div>
+          <div class="card-body">
+            <span class="role-tag tag-good">好人阵营</span>
+            <h3 class="card-name">平民</h3>
+            <p class="card-tagline">静默的观察者</p>
+          </div>
+          <div class="skill-overlay">
+            <span class="role-tag tag-good">好人阵营</span>
+            <h3 class="card-name">平民</h3>
+            <div class="skill-title">🛡 技能 · 思辨</div>
+            <p class="skill-desc">没有任何特殊技能,但拥有最珍贵的能力——思考。通过聆听发言、分析逻辑、观察投票,找出隐藏在人群中的狼人,是好人阵营的基石。</p>
+          </div>
+        </article>
+
+        <!-- 角色 3: 预言家 -->
+        <article class="character-card" data-faction="good">
+          <div class="card-image">
+            <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Old%20mystical%20seer%20with%20glowing%20crystal%20ball%2C%20hooded%20robe%2C%20white%20beard%2C%20dark%20fantasy%20art%2C%20mysterious%20aura&image_size=square" alt="预言家" loading="lazy">
+          </div>
+          <div class="card-body">
+            <span class="role-tag tag-good">好人阵营</span>
+            <h3 class="card-name">预言家</h3>
+            <p class="card-tagline">真相的守望者</p>
+          </div>
+          <div class="skill-overlay">
+            <span class="role-tag tag-good">好人阵营</span>
+            <h3 class="card-name">预言家</h3>
+            <div class="skill-title">🔮 技能 · 查验</div>
+            <p class="skill-desc">每晚可以查验一名玩家的真实身份(好人或狼人)。是好人阵营最核心的信息来源,需要通过精准的发言与报验,带领好人放逐狼人。</p>
+          </div>
+        </article>
+
+        <!-- 角色 4: 女巫 -->
+        <article class="character-card" data-faction="good">
+          <div class="card-image">
+            <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Beautiful%20dark%20witch%20with%20potions%20and%20cauldron%2C%20long%20dark%20hair%2C%20mysterious%20smile%2C%20dark%20fantasy%20art%2C%20candlelit&image_size=square" alt="女巫" loading="lazy">
+          </div>
+          <div class="card-body">
+            <span class="role-tag tag-good">好人阵营</span>
+            <h3 class="card-name">女巫</h3>
+            <p class="card-tagline">生死的裁决者</p>
+          </div>
+          <div class="skill-overlay">
+            <span class="role-tag tag-good">好人阵营</span>
+            <h3 class="card-name">女巫</h3>
+            <div class="skill-title">⚗ 技能 · 救赎</div>
+            <p class="skill-desc">拥有解药和毒药各一瓶。解药可救活当夜被狼人击杀的玩家,毒药可毒杀任意一名玩家。一夜最多使用一瓶,且不可在同一夜同时救人又毒人。</p>
+          </div>
+        </article>
+
+        <!-- 角色 5: 猎人 -->
+        <article class="character-card" data-faction="good">
+          <div class="card-image">
+            <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Medieval%20hunter%20with%20crossbow%2C%20leather%20armor%2C%20intense%20gaze%2C%20dark%20fantasy%20art%2C%20rugged%20appearance%2C%20dramatic%20lighting&image_size=square" alt="猎人" loading="lazy">
+          </div>
+          <div class="card-body">
+            <span class="role-tag tag-good">好人阵营</span>
+            <h3 class="card-name">猎人</h3>
+            <p class="card-tagline">绝地反击者</p>
+          </div>
+          <div class="skill-overlay">
+            <span class="role-tag tag-good">好人阵营</span>
+            <h3 class="card-name">猎人</h3>
+            <div class="skill-title">🏹 技能 · 猎枪</div>
+            <p class="skill-desc">拥有一把上膛的猎枪。被投票放逐或被狼人击杀时,可开枪带走一名玩家同归于尽。但若被女巫毒杀,则无法开枪(毒药使枪哑火)。</p>
+          </div>
+        </article>
+
+        <!-- 角色 6: 守卫 -->
+        <article class="character-card" data-faction="good">
+          <div class="card-image">
+            <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Medieval%20guard%20with%20shield%20and%20armor%2C%20stoic%20expression%2C%20dark%20fantasy%20art%2C%20torchlight%2C%20noble%20warrior&image_size=square" alt="守卫" loading="lazy">
+          </div>
+          <div class="card-body">
+            <span class="role-tag tag-good">好人阵营</span>
+            <h3 class="card-name">守卫</h3>
+            <p class="card-tagline">暗夜的守护者</p>
+          </div>
+          <div class="skill-overlay">
+            <span class="role-tag tag-good">好人阵营</span>
+            <h3 class="card-name">守卫</h3>
+            <div class="skill-title">🛡 技能 · 庇护</div>
+            <p class="skill-desc">每晚选择守护一名玩家,被守护者当夜免疫狼人击杀。但同一玩家不可连续两晚被守护(空守规则),需要灵活切换守护目标。</p>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       板块 3: 游戏规则
+       清爽文字排版,分阶段说明
+       ==================================================================== -->
+  <section id="rules" class="section rules">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">RULES</p>
+        <h2 class="section-title">游戏规则</h2>
+        <p class="section-subtitle">昼夜交替,生死轮转。一场完整的对局通常包含 9-12 名玩家。</p>
+      </div>
+
+      <div class="rules-grid">
+
+        <!-- 规则卡: 胜利条件 -->
+        <div class="rule-card reveal">
+          <div class="rule-icon">🏆</div>
+          <h3 class="rule-title">胜利条件</h3>
+          <div class="rule-content">
+            <p><span class="highlight-red">好人胜利</span>:所有狼人被消灭。</p>
+            <p><span class="highlight-red">狼人胜利</span>:狼人数量 ≥ 好人数量(屠边或屠城)。</p>
+          </div>
+        </div>
+
+        <!-- 规则卡: 夜晚阶段 -->
+        <div class="rule-card reveal">
+          <div class="rule-icon">🌙</div>
+          <h3 class="rule-title">夜晚阶段</h3>
+          <div class="rule-content">
+            <p>天黑请闭眼,所有玩家闭眼。法官依次唤醒:</p>
+            <p><strong>守卫</strong> → 指定守护对象</p>
+            <p><strong>狼人</strong> → 共同选择击杀目标</p>
+            <p><strong>预言家</strong> → 查验一名玩家身份</p>
+            <p><strong>女巫</strong> → 决定是否使用解药/毒药</p>
+          </div>
+        </div>
+
+        <!-- 规则卡: 白天阶段 -->
+        <div class="rule-card reveal">
+          <div class="rule-icon">☀</div>
+          <h3 class="rule-title">白天阶段</h3>
+          <div class="rule-content">
+            <p>天亮,法官公布昨夜死亡名单(不公布死因)。</p>
+            <p>死者发表遗言后离场,猎人可开枪。</p>
+            <p>存活玩家依次发言,阐述逻辑与怀疑。</p>
+            <p>发言结束后投票放逐,得票最多者出局。</p>
+          </div>
+        </div>
+
+        <!-- 规则卡: 术语速查 -->
+        <div class="rule-card reveal">
+          <div class="rule-icon">📜</div>
+          <h3 class="rule-title">术语速查</h3>
+          <div class="rule-content glossary">
+            <p><span class="term">跳预言家</span>:自称是预言家</p>
+            <p><span class="term">查杀</span>:验出狼人身份</p>
+            <p><span class="term">金水</span>:验出好人身份</p>
+            <p><span class="term">悍跳</span>:狼人冒充神职</p>
+            <p><span class="term">平安夜</span>:无人死亡的一夜</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       板块 4: 游戏对局截图展示
+       沉浸式场景图,lightbox 点击放大
+       ==================================================================== -->
+  <section id="screenshots" class="section screenshots">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-eyebrow">GALLERY</p>
+        <h2 class="section-title">对局实录</h2>
+        <p class="section-subtitle">月光浸染的村庄,一幕幕暗夜博弈的瞬间。</p>
+      </div>
+
+      <div class="screenshot-grid">
+
+        <figure class="screenshot-item reveal">
+          <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Dark%20fantasy%20medieval%20village%20at%20night%2C%20foggy%20streets%2C%20blood%20moon%2C%20werewolves%20meeting%2C%20cinematic%20atmospheric&image_size=landscape_16_9" alt="夜袭村庄" loading="lazy">
+          <figcaption>
+            <span class="caption-tag">NIGHT</span>
+            <h4>夜袭</h4>
+            <p>狼人睁眼,选定今夜的猎物。</p>
+          </figcaption>
+        </figure>
+
+        <figure class="screenshot-item reveal">
+          <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Dark%20fantasy%20medieval%20village%20square%20daytime%2C%20crowd%20gathering%2C%20accusation%20scene%2C%20tense%20atmosphere%2C%20cinematic&image_size=landscape_16_9" alt="白日审判" loading="lazy">
+          <figcaption>
+            <span class="caption-tag">DAY</span>
+            <h4>审判</h4>
+            <p>天亮议事,谁是真凶?</p>
+          </figcaption>
+        </figure>
+
+        <figure class="screenshot-item reveal">
+          <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Dark%20fantasy%20seer%20divination%20scene%2C%20glowing%20crystal%20ball%2C%20candles%2C%20mystical%20aura%2C%20mysterious%20chamber%2C%20cinematic&image_size=landscape_16_9" alt="预言查验" loading="lazy">
+          <figcaption>
+            <span class="caption-tag">SEER</span>
+            <h4>查验</h4>
+            <p>水晶球中,真相浮现。</p>
+          </figcaption>
+        </figure>
+
+        <figure class="screenshot-item reveal">
+          <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Dark%20fantasy%20witch%20brewing%20potions%2C%20candlelit%20table%2C%20bubbling%20cauldron%2C%20mysterious%20laboratory%2C%20cinematic%20atmospheric&image_size=landscape_16_9" alt="女巫炼药" loading="lazy">
+          <figcaption>
+            <span class="caption-tag">WITCH</span>
+            <h4>抉择</h4>
+            <p>解药救人,毒药索命。</p>
+          </figcaption>
+        </figure>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================================================================
+       板块 5: 页脚 - 关于项目
+       ==================================================================== -->
+  <footer id="about" class="footer">
+    <div class="container">
+      <div class="footer-grid">
+
+        <div class="footer-col footer-about">
+          <h3 class="footer-logo">☾ 暗夜对局</h3>
+          <p>一个以经典桌游「狼人杀」为主题的纯展示型官网,致敬这场关于信任、谎言与推理的暗夜博弈。</p>
+          <p class="footer-meta">本项目不含联机对战功能,仅作展示与赏析用途。</p>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">技术栈</h4>
+          <ul class="footer-list">
+            <li>HTML5 语义结构</li>
+            <li>CSS3 动画 / Flex / Grid</li>
+            <li>原生 JavaScript (无依赖)</li>
+            <li>响应式自适应布局</li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">快速导航</h4>
+          <ul class="footer-list">
+            <li><a href="#home">首页 Banner</a></li>
+            <li><a href="#characters">角色图鉴</a></li>
+            <li><a href="#rules">游戏规则</a></li>
+            <li><a href="#screenshots">对局实录</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">致谢</h4>
+          <ul class="footer-list">
+            <li>角色立绘:AI 生成</li>
+            <li>字体:Cinzel / Noto Sans SC</li>
+            <li>灵感:经典狼人杀桌游</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 狼人杀 · 暗夜对局 · 仅作展示用途</p>
+        <p class="footer-quote">"月光之下,人人皆有嫌疑。"</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 图片灯箱 (点击截图放大查看) -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose" aria-label="关闭">×</button>
+    <img src="" alt="放大查看" id="lightboxImage">
+  </div>
+
+  <!-- 回到顶部按钮 -->
+  <button class="back-to-top" id="backToTop" aria-label="回到顶部">↑</button>
+
+  <!-- 网站交互脚本 -->
+  <script src="js/script.js"></script>
+
+</div>
+
+<div id="game-view" style="display:none;">
+
+
+  <!-- ============ 简化导航: 返回首页 ============ -->
+  <nav class="navbar scrolled">
+    <div class="nav-container">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-icon">☾</span>
+        <span class="logo-text">返回首页</span>
+      </a>
+      <div class="nav-status" id="navStatus">准备开始</div>
+    </div>
+  </nav>
+
+  <main class="game-main">
+
+    <!-- ============ 顶部状态栏 ============ -->
+    <div class="game-status-bar" id="statusBar">
+      <div class="status-item">
+        <span class="status-label">回合</span>
+        <span class="status-value" id="statusRound">—</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">你的身份</span>
+        <span class="status-value" id="statusRole">未分配</span>
+      </div>
+      <div class="status-item">
+        <span class="status-label">存活</span>
+        <span class="status-value" id="statusAlive">9/9</span>
+      </div>
+    </div>
+
+    <!-- ============ 游戏圆桌 (9 个座位) ============ -->
+    <div class="game-board" id="gameBoard">
+      <!-- 中央显示区 -->
+      <div class="game-center" id="gameCenter">
+        <div class="center-icon">☾</div>
+        <div class="center-text" id="centerText">点击下方按钮开始对局</div>
+      </div>
+      <!-- 9 个座位由 JS 动态生成 -->
+    </div>
+
+    <!-- ============ 操作面板 (动态按钮 / 提示) ============ -->
+    <div class="action-panel" id="actionPanel">
+      <button class="btn btn-primary" id="startBtn">⚔ 开始对局</button>
+    </div>
+
+    <!-- ============ 对局记录 ============ -->
+    <div class="game-log">
+      <h3 class="log-title">📜 对局记录</h3>
+      <ul class="log-list" id="logList"></ul>
+    </div>
+
+  </main>
+
+  <!-- ============ 全屏阶段过渡横幅 (天黑/天亮) ============ -->
+  <div class="phase-banner" id="phaseBanner"></div>
+
+  <!-- ============ 通用弹窗 (身份揭晓 / 选择 / 游戏结束) ============ -->
+  <div class="game-modal" id="modal">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-content">
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions" id="modalActions"></div>
+    </div>
+  </div>
+
+  <!-- 游戏逻辑 -->
+  <script src="js/game.js"></script>
+
+</div>
+
+<script>
+function showHome() {
+  document.getElementById('home-view').style.display = '';
+  document.getElementById('game-view').style.display = 'none';
+  window.scrollTo(0, 0);
+}
+function showGame() {
+  document.getElementById('home-view').style.display = 'none';
+  document.getElementById('game-view').style.display = '';
+  window.scrollTo(0, 0);
+}
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('a[href="game.html"]').forEach(function(a) {
+    a.href = 'javascript:void(0)';
+    a.addEventListener('click', showGame);
+  });
+  document.querySelectorAll('a[href="index.html"]').forEach(function(a) {
+    a.href = 'javascript:void(0)';
+    a.addEventListener('click', showHome);
+  });
+});
+/* ====================================================================
+   狼人杀 · 暗夜对局 - 交互脚本
+   功能模块:
+   1.  导航栏滚动变色
+   2.  移动端菜单开关
+   3.  角色卡片移动端点击切换技能 (桌面端用 CSS hover)
+   4.  滚动渐入动画 (IntersectionObserver)
+   5.  对局截图灯箱
+   6.  回到顶部按钮
+   7.  导航高亮当前章节
+   ==================================================================== */
+
+(function () {
+  'use strict';
+
+  /* ==================== 1. 导航栏滚动变色 ==================== */
+  const navbar = document.getElementById('navbar');
+  const backToTop = document.getElementById('backToTop');
+
+  function handleScroll() {
+    const scrolled = window.scrollY > 60;
+    navbar.classList.toggle('scrolled', scrolled);
+    backToTop.classList.toggle('visible', window.scrollY > 400);
+  }
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  handleScroll(); // 初始状态
+
+  /* ==================== 2. 移动端菜单开关 ==================== */
+  const navToggle = document.getElementById('navToggle');
+  const navMenu = document.getElementById('navMenu');
+
+  navToggle.addEventListener('click', () => {
+    navToggle.classList.toggle('active');
+    navMenu.classList.toggle('active');
+  });
+
+  // 点击菜单项后关闭移动菜单
+  navMenu.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      navToggle.classList.remove('active');
+      navMenu.classList.remove('active');
+    });
+  });
+
+  /* ==================== 3. 角色卡片: 移动端点击切换技能 ==================== */
+  // 桌面端由 CSS :hover 处理, 这里只处理触摸设备
+  const characterCards = document.querySelectorAll('.character-card');
+  const isTouchDevice = window.matchMedia('(hover: none)').matches;
+
+  characterCards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      // 仅触摸设备启用点击切换
+      if (!isTouchDevice) return;
+      // 先关闭其他卡片
+      characterCards.forEach(c => { if (c !== card) c.classList.remove('active'); });
+      // 切换当前卡片
+      card.classList.toggle('active');
+    });
+  });
+
+  /* ==================== 4. 滚动渐入动画 ==================== */
+  // 给需要动画的元素加 .reveal 类 (HTML 已加), 滚入视口时加 .visible
+  const revealElements = document.querySelectorAll('.reveal');
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          io.unobserve(entry.target); // 仅触发一次
+        }
+      });
+    }, {
+      threshold: 0.12,         // 进入视口 12% 即触发
+      rootMargin: '0px 0px -50px 0px'
+    });
+
+    revealElements.forEach(el => io.observe(el));
+  } else {
+    // 不支持 IntersectionObserver 的旧浏览器: 直接显示
+    revealElements.forEach(el => el.classList.add('visible'));
+  }
+
+  /* ==================== 5. 对局截图灯箱 ==================== */
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImage');
+  const lightboxClose = document.getElementById('lightboxClose');
+  const screenshotItems = document.querySelectorAll('.screenshot-item img');
+
+  screenshotItems.forEach(img => {
+    img.addEventListener('click', () => {
+      lightboxImg.src = img.src;
+      lightboxImg.alt = img.alt;
+      lightbox.classList.add('active');
+      document.body.style.overflow = 'hidden'; // 禁止背景滚动
+    });
+  });
+
+  function closeLightbox() {
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', (e) => {
+    // 点击空白处关闭
+    if (e.target === lightbox) closeLightbox();
+  });
+  // ESC 键关闭
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.classList.contains('active')) closeLightbox();
+  });
+
+  /* ==================== 6. 回到顶部按钮 ==================== */
+  backToTop.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ==================== 7. 导航高亮当前章节 ==================== */
+  // 滚动时自动高亮导航栏对应的菜单项
+  const sections = document.querySelectorAll('section[id], footer[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+
+  if ('IntersectionObserver' in window) {
+    const navObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.id;
+          navLinks.forEach(link => {
+            const isActive = link.getAttribute('href') === `#${id}`;
+            link.classList.toggle('active-link', isActive);
+          });
+        }
+      });
+    }, {
+      threshold: 0.4,
+      rootMargin: '-80px 0px -50% 0px'
+    });
+    sections.forEach(sec => navObserver.observe(sec));
+  }
+
+  // 控制台彩蛋
+  console.log('%c☾ 狼人杀 · 暗夜对局 %c 月光之下,人人皆有嫌疑。',
+    'color:#e63946;font-size:20px;font-weight:bold;', 'color:#8a8580;font-style:italic;');
+})();
+
+/* ====================================================================
+   狼人杀 · 暗夜对局 - 单机游戏逻辑
+   ----------------------------------------------------------------------
+   配置: 9 人局 — 3 狼人 + 1 预言家 + 1 女巫 + 1 猎人 + 3 平民
+   玩家: 1 人 (人类), 其余 8 人由 AI 扮演
+   流程: 黑夜行动 (狼人/预言家/女巫) → 天亮公布死讯 → 白天发言 → 投票放逐
+         → (循环) 直到胜负判定
+   ==================================================================== */
+
+(function () {
+  'use strict';
+
+  /* ==================== 角色定义 ==================== */
+  // img: 复用首页角色图鉴的 AI 立绘 (5 个, 游戏不用守卫)
+  const ROLE_DEFS = {
+    wolf:     { name: '狼人',   faction: 'wolf', icon: '🐺', tag: 'tag-wolf',
+      img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Dark%20fantasy%20werewolf%20portrait%2C%20glowing%20red%20eyes%2C%20sharp%20fangs%2C%20dark%20fur%2C%20blood%20moon%20background%2C%20gothic%20art%20style%2C%20dramatic%20lighting&image_size=square' },
+    seer:     { name: '预言家', faction: 'good', icon: '🔮', tag: 'tag-good',
+      img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Old%20mystical%20seer%20with%20glowing%20crystal%20ball%2C%20hooded%20robe%2C%20white%20beard%2C%20dark%20fantasy%20art%2C%20mysterious%20aura&image_size=square' },
+    witch:    { name: '女巫',   faction: 'good', icon: '⚗', tag: 'tag-good',
+      img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Beautiful%20dark%20witch%20with%20potions%20and%20cauldron%2C%20long%20dark%20hair%2C%20mysterious%20smile%2C%20dark%20fantasy%20art%2C%20candlelit&image_size=square' },
+    hunter:   { name: '猎人',   faction: 'good', icon: '🏹', tag: 'tag-good',
+      img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Medieval%20hunter%20with%20crossbow%2C%20leather%20armor%2C%20intense%20gaze%2C%20dark%20fantasy%20art%2C%20rugged%20appearance%2C%20dramatic%20lighting&image_size=square' },
+    civilian: { name: '平民',   faction: 'good', icon: '🛡', tag: 'tag-good',
+      img: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Medieval%20village%20commoner%20portrait%2C%20dark%20fantasy%20style%2C%20candlelight%2C%20fearful%20expression%2C%20plain%20clothes%2C%20gothic%20art&image_size=square' },
+  };
+  // 9 人身份池: 3狼 + 预言家 + 女巫 + 猎人 + 3平民
+  const ROLE_POOL = ['wolf','wolf','wolf','seer','witch','hunter','civilian','civilian','civilian'];
+
+  const ROLE_DESC = {
+    wolf:     '每晚与同伴一起选择一名玩家击杀。白天则伪装成好人混淆视听。',
+    seer:     '每晚查验一名玩家的真实身份(好人或狼人)。',
+    witch:    '拥有解药和毒药各一瓶,解药可救人,毒药可毒杀,不可同夜同时使用。',
+    hunter:   '被淘汰时可开枪带走一名玩家(被毒杀除外)。',
+    civilian: '没有特殊技能,通过观察和推理找出狼人。',
+  };
+
+  /* ==================== 游戏状态 ==================== */
+  const state = {
+    players: [],                // 9 个玩家对象 { id, role, alive, isHuman, name }
+    round: 0,                   // 当前回合数
+    phase: 'setup',             // setup / night / dawn / speak / vote / end
+    humanId: null,              // 人类玩家座位号 (1-9)
+    witchPotions: { heal: true, poison: true },  // 女巫药剂剩余
+    nightActions: {             // 当夜行动记录
+      wolfTarget: null,
+      seerCheck: null,
+      witchHealed: false,
+      witchPoison: null,
+    },
+    claimedSeer: null,          // 公开声明预言家的玩家 id
+    claimedRole: {},            // { playerId: role } 公开身份声明
+    deathsTonight: [],         // 当夜死亡列表 [{ id, poisoned }]
+    log: [],
+  };
+
+  /* ==================== DOM 引用 ==================== */
+  const $ = (id) => document.getElementById(id);
+  const board = $('gameBoard');
+  const center = $('gameCenter');
+  const centerText = $('centerText');
+  const actionPanel = $('actionPanel');
+  const logList = $('logList');
+  const navStatus = $('navStatus');
+
+  /* ==================== 工具函数 ==================== */
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+  const alivePlayers = () => state.players.filter(p => p.alive);
+  const aliveWolves = () => alivePlayers().filter(p => p.role === 'wolf');
+  const aliveGoods = () => alivePlayers().filter(p => p.role !== 'wolf');
+  const getPlayer = (id) => state.players.find(p => p.id === Number(id));
+  const human = () => getPlayer(state.humanId);
+
+  /* ==================== 日志 ==================== */
+  function logEntry(text, type = 'system') {
+    state.log.push({ text, type });
+    const li = document.createElement('li');
+    li.className = `log-entry log-${type}`;
+    li.textContent = text;
+    logList.appendChild(li);
+    logList.scrollTop = logList.scrollHeight;
+  }
+
+  /* ==================== 棋盘渲染 ==================== */
+  function setupEmpty() {
+    // 随机选人类座位 (1-9)
+    state.humanId = Math.floor(Math.random() * 9) + 1;
+    state.players = [];
+    for (let i = 1; i <= 9; i++) {
+      state.players.push({
+        id: i,
+        role: null,             // 待分配
+        alive: true,
+        isHuman: i === state.humanId,
+        name: i === state.humanId ? `你 (${i}号)` : `${i}号`,
+        _notes: {},             // AI 预言家内部查验记录
+      });
+    }
+    renderBoard();
+    updateStatus();
+  }
+
+  function renderBoard() {
+    // 清空除中央外的座位
+    board.querySelectorAll('.player-seat').forEach(s => s.remove());
+    const total = 9;
+    state.players.forEach((p, i) => {
+      const angle = (i * 360 / total) - 90;  // -90 让 1 号在顶部
+      const seat = document.createElement('div');
+      seat.className = 'player-seat';
+      seat.dataset.id = p.id;
+      seat.style.setProperty('--angle', angle + 'deg');
+      seat.innerHTML = `
+        <div class="seat-inner">
+          <span class="seat-number">${p.id}号</span>
+          <div class="seat-avatar">${p.role ? ROLE_DEFS[p.role].icon : '👤'}</div>
+          <div class="seat-name">${p.name}</div>
+          <div class="seat-role-badge"></div>
+          <div class="seat-vote">0</div>
+        </div>`;
+      seat.addEventListener('click', () => onSeatClick(p.id));
+      board.appendChild(seat);
+    });
+    updateBoard();
+  }
+
+  function updateBoard() {
+    const me = human();
+    state.players.forEach(p => {
+      const seat = board.querySelector(`.player-seat[data-id="${p.id}"]`);
+      if (!seat) return;
+      seat.classList.toggle('dead', !p.alive);
+      seat.classList.toggle('self', p.isHuman);
+      // 狼同伴: 仅在人类为狼人且此玩家是其他狼人时显示
+      seat.classList.toggle('wolf-ally',
+        me && me.role === 'wolf' && p.role === 'wolf' && !p.isHuman);
+
+      // 头像 (死亡后展示真实角色图标)
+      const avatar = seat.querySelector('.seat-avatar');
+      if (p.role && (!p.alive || shouldRevealRole(p))) {
+        avatar.textContent = ROLE_DEFS[p.role].icon;
+      } else {
+        avatar.textContent = '👤';
+      }
+      // 身份徽章
+      const badge = seat.querySelector('.seat-role-badge');
+      if (shouldRevealRole(p) && p.role) {
+        badge.textContent = ROLE_DEFS[p.role].name;
+        badge.className = `seat-role-badge ${ROLE_DEFS[p.role].tag}`;
+      } else {
+        badge.textContent = '';
+        badge.className = 'seat-role-badge';
+      }
+    });
+  }
+
+  // 判断某玩家的身份是否应对人类可见
+  function shouldRevealRole(p) {
+    const me = human();
+    if (!me || !p.role) return false;
+    if (p.isHuman) return true;            // 自己
+    if (!p.alive) return true;             // 死亡公开
+    if (state.phase === 'end') return true;// 游戏结束全公开
+    if (me.role === 'wolf' && p.role === 'wolf') return true;  // 狼同伴
+    return false;
+  }
+
+  /* ==================== 状态栏 / 中央 ==================== */
+  function updateStatus() {
+    const me = human();
+    const phaseText = {
+      setup: '准备中',
+      night: `第 ${state.round} 夜`,
+      dawn:  `第 ${state.round} 天清晨`,
+      speak: `第 ${state.round} 天发言`,
+      vote:  `第 ${state.round} 天投票`,
+      end:   '游戏结束',
+    }[state.phase];
+    $('statusRound').textContent = phaseText;
+    $('statusRole').textContent = me && me.role ? ROLE_DEFS[me.role].name : '未分配';
+    $('statusAlive').textContent = `${alivePlayers().length}/9`;
+    navStatus.textContent = phaseText;
+  }
+
+  function updateCenter(text) {
+    centerText.innerHTML = text;
+  }
+
+  /* ==================== 选择交互 (座位点击) ==================== */
+  let selectionResolver = null;   // 选择模式下的 Promise resolver
+
+  function onSeatClick(id) {
+    const seat = board.querySelector(`.player-seat[data-id="${id}"]`);
+    if (!seat || !seat.classList.contains('selectable')) return;
+    // 高亮选中
+    board.querySelectorAll('.player-seat.selected').forEach(s => s.classList.remove('selected'));
+    seat.classList.add('selected');
+    if (selectionResolver) {
+      const res = selectionResolver;
+      selectionResolver = null;
+      clearSelectable();
+      clearActionPrompt();
+      res(id);
+    }
+  }
+
+  // 等待玩家选择一个目标 (返回 Promise<playerId>)
+  function selectTarget(promptText, targets) {
+    return new Promise(resolve => {
+      setActionPrompt(promptText);
+      clearSelectable();
+      targets.forEach(t => {
+        const seat = board.querySelector(`.player-seat[data-id="${t.id}"]`);
+        if (seat) seat.classList.add('selectable');
+      });
+      selectionResolver = resolve;
+    });
+  }
+
+  function clearSelectable() {
+    board.querySelectorAll('.player-seat.selectable, .player-seat.selected')
+      .forEach(s => s.classList.remove('selectable', 'selected'));
+  }
+  function setActionPrompt(text) {
+    actionPanel.innerHTML = `<p class="action-prompt">${text}</p>`;
+  }
+  function clearActionPrompt() {
+    actionPanel.innerHTML = '';
+  }
+
+  // 暂停并等待玩家点击"继续" (天亮/发言结束等关键节点, 给玩家充足阅读时间)
+  function waitForContinue(promptText) {
+    return new Promise(resolve => {
+      actionPanel.innerHTML = `
+        <p class="action-prompt">${promptText}</p>
+        <button class="btn btn-primary" id="continueBtn">继续 ▶</button>
+      `;
+      const btn = $('continueBtn');
+      if (btn) btn.addEventListener('click', () => {
+        actionPanel.innerHTML = '';
+        resolve();
+      }, { once: true });
+    });
+  }
+
+  /* ==================== 弹窗系统 ==================== */
+  let modalResolver = null;
+
+  function showModal({ title, body, actions }) {
+    $('modalTitle').textContent = title;
+    $('modalBody').innerHTML = body;
+    const actionsEl = $('modalActions');
+    actionsEl.innerHTML = '';
+    actions.forEach(a => {
+      const btn = document.createElement('button');
+      btn.className = 'btn ' + (a.primary ? 'btn-primary' : 'btn-ghost');
+      btn.textContent = a.text;
+      btn.onclick = () => {
+        closeModal();
+        if (a.onClick) a.onClick();
+      };
+      actionsEl.appendChild(btn);
+    });
+    $('modal').classList.add('active');
+  }
+  function closeModal() {
+    $('modal').classList.remove('active');
+    if (modalResolver) {
+      const r = modalResolver;
+      modalResolver = null;
+      r();
+    }
+  }
+  function waitForModalClose() {
+    return new Promise(resolve => { modalResolver = resolve; });
+  }
+
+  /* ==================== 阶段过渡横幅 ==================== */
+  function showPhaseBanner(text, type) {
+    return new Promise(resolve => {
+      const banner = $('phaseBanner');
+      banner.textContent = text;
+      banner.className = `phase-banner ${type} active`;
+      setTimeout(() => {
+        banner.classList.remove('active');
+        setTimeout(resolve, 400);
+      }, 1400);
+    });
+  }
+
+  /* ==================== 身份揭晓 ==================== */
+  function showRoleReveal() {
+    const me = human();
+    const def = ROLE_DEFS[me.role];
+    const allyText = me.role === 'wolf'
+      ? aliveWolves().filter(w => !w.isHuman).map(w => w.id + '号').join('、')
+      : '';
+    showModal({
+      title: '身份揭晓',
+      body: `
+        <div class="role-reveal">
+          <p class="reveal-tag">你的身份是</p>
+          <div class="reveal-img-wrap ${def.tag}">
+            <img class="reveal-img" src="${def.img}" alt="${def.name}">
+          </div>
+          <h3 class="reveal-name ${def.tag}">${def.name}</h3>
+          <p class="reveal-faction">${def.faction === 'wolf' ? '狼人阵营' : '好人阵营'}</p>
+          <p class="reveal-desc">${ROLE_DESC[me.role]}</p>
+          ${allyText ? `<p class="reveal-ally">🐺 你的狼人同伴: ${allyText}</p>` : ''}
+        </div>`,
+      actions: [{ text: '进入第一夜', primary: true, onClick: () => startNight() }],
+    });
+  }
+
+  /* ==================== 夜晚阶段 ==================== */
+  async function startNight() {
+    state.round++;
+    state.phase = 'night';
+    state.nightActions = { wolfTarget: null, seerCheck: null, witchHealed: false, witchPoison: null };
+    state.deathsTonight = [];
+    updateStatus();
+    updateCenter('🌙 夜幕降临,所有人闭眼...');
+    await showPhaseBanner('🌙 天黑请闭眼', 'night');
+    logEntry(`—— 第 ${state.round} 夜 —— 夜幕降临,所有人闭眼。`, 'night');
+
+    await wolfPhase();
+    await seerPhase();
+    await witchPhase();
+
+    await dawnPhase();
+  }
+
+  /* ---------- 狼人行动 ---------- */
+  async function wolfPhase() {
+    await showPhaseBanner('🐺 狼人请睁眼', 'night');
+    const me = human();
+    const wolves = aliveWolves();
+    if (!wolves.length) { await sleep(400); return; }
+
+    if (me.role === 'wolf' && me.alive) {
+      // 人类是狼人: 让玩家选择
+      const targets = alivePlayers().filter(p => p.role !== 'wolf');
+      updateCenter('🐺 狼人请选择今夜击杀目标');
+      const targetId = await selectTarget('🐺 <strong>狼人行动</strong> — 请选择今夜要击杀的目标', targets);
+      state.nightActions.wolfTarget = targetId;
+      logEntry(`狼人选择了 ${targetId}号 作为今夜的猎物。`, 'night');
+    } else {
+      // AI 狼人自动选择
+      updateCenter('🐺 狼人正在密谋...');
+      await sleep(900);
+      const targetId = aiWolfChoose();
+      state.nightActions.wolfTarget = targetId;
+      logEntry(`狼人睁眼,密谋选择了今夜的目标。`, 'night');
+    }
+    clearSelectable();
+    await showPhaseBanner('狼人请闭眼', 'night');
+  }
+
+  // AI 狼人选择目标: 优先击杀已跳预言家者, 否则随机非狼
+  function aiWolfChoose() {
+    const targets = alivePlayers().filter(p => p.role !== 'wolf');
+    if (state.claimedSeer) {
+      const seer = targets.find(p => p.id === state.claimedSeer);
+      if (seer && Math.random() < 0.6) return seer.id;
+    }
+    return targets[Math.floor(Math.random() * targets.length)].id;
+  }
+
+  /* ---------- 预言家行动 ---------- */
+  async function seerPhase() {
+    await showPhaseBanner('🔮 预言家请睁眼', 'night');
+    const me = human();
+    const seer = alivePlayers().find(p => p.role === 'seer');
+    if (!seer) { await sleep(400); return; }
+
+    if (me.role === 'seer' && me.alive) {
+      // 人类预言家
+      const checked = Object.keys(me._notes);
+      const targets = alivePlayers().filter(p => p.id !== me.id && !checked.includes(String(p.id)));
+      if (targets.length === 0) { await sleep(400); return; }
+      updateCenter('🔮 预言家请选择查验目标');
+      const targetId = await selectTarget('🔮 <strong>预言家行动</strong> — 请选择查验目标', targets);
+      const target = getPlayer(targetId);
+      const result = target.role === 'wolf' ? 'wolf' : 'good';
+      me._notes[targetId] = result;
+      logEntry(`你查验 ${targetId}号 — 结果: ${result === 'wolf' ? '狼人' : '好人'}`, 'night');
+      showModal({
+        title: '🔮 查验结果',
+        body: `<div class="check-result"><p>${targetId}号 的身份是 <strong class="${result === 'wolf' ? 'tag-wolf' : 'tag-good'}">${result === 'wolf' ? '狼人' : '好人'}</strong></p></div>`,
+        actions: [{ text: '确认', primary: true }],
+      });
+      await waitForModalClose();
+    } else {
+      // AI 预言家
+      updateCenter('🔮 预言家正在查验...');
+      await sleep(900);
+      const checked = Object.keys(seer._notes);
+      const targets = alivePlayers().filter(p => p.id !== seer.id && !checked.includes(String(p.id)));
+      if (targets.length) {
+        const target = targets[Math.floor(Math.random() * targets.length)];
+        seer._notes[target.id] = target.role === 'wolf' ? 'wolf' : 'good';
+      }
+      logEntry(`预言家睁眼,查验了一名玩家。`, 'night');
+    }
+    clearSelectable();
+    await showPhaseBanner('预言家请闭眼', 'night');
+  }
+
+  /* ---------- 女巫行动 ---------- */
+  async function witchPhase() {
+    await showPhaseBanner('⚗ 女巫请睁眼', 'night');
+    const me = human();
+    const witch = alivePlayers().find(p => p.role === 'witch');
+    if (!witch) { await sleep(400); return; }
+
+    if (me.role === 'witch' && me.alive) {
+      // 人类女巫
+      updateCenter('⚗ 女巫请决定是否使用药剂');
+      // 1. 解药
+      if (state.witchPotions.heal && state.nightActions.wolfTarget) {
+        const victim = getPlayer(state.nightActions.wolfTarget);
+        const useHeal = await askChoice('⚗ 女巫 · 解药',
+          `今夜 ${victim.id}号 被狼人袭击,是否使用解药救活?`,
+          [{ text: '不救', value: false }, { text: '使用解药', value: true, primary: true }]);
+        if (useHeal) {
+          state.nightActions.witchHealed = true;
+          state.witchPotions.heal = false;
+          logEntry(`女巫使用了解药,救活了 ${victim.id}号。`, 'night');
+        }
+      }
+      // 2. 毒药 (若已用解药则不能再用)
+      if (state.witchPotions.poison && !state.nightActions.witchHealed) {
+        const usePoison = await askChoice('⚗ 女巫 · 毒药',
+          '是否使用毒药毒杀一名玩家?',
+          [{ text: '不使用', value: null }, { text: '使用毒药', value: true, primary: true }]);
+        if (usePoison) {
+          const targets = alivePlayers().filter(p => p.id !== me.id);
+          const targetId = await selectTarget('⚗ 选择毒杀目标', targets);
+          state.nightActions.witchPoison = targetId;
+          state.witchPotions.poison = false;
+          logEntry(`女巫使用了毒药,毒杀了 ${targetId}号。`, 'night');
+        }
+      }
+    } else {
+      // AI 女巫
+      updateCenter('⚗ 女巫正在抉择...');
+      await sleep(900);
+      aiWitchAct(witch);
+    }
+    clearSelectable();
+    await showPhaseBanner('女巫请闭眼', 'night');
+  }
+
+  // AI 女巫策略: 第一夜/救自己时用解药; 有明确狼人目标时用毒药
+  function aiWitchAct(witch) {
+    const wolfTarget = state.nightActions.wolfTarget;
+    // 解药: 第一夜、被袭击的是自己、或随机概率救
+    if (state.witchPotions.heal && wolfTarget) {
+      const victim = getPlayer(wolfTarget);
+      const shouldHeal = victim.id === witch.id || state.round === 1 || Math.random() < 0.25;
+      if (shouldHeal) {
+        state.nightActions.witchHealed = true;
+        state.witchPotions.heal = false;
+        logEntry(`女巫使用了解药。`, 'night');
+      }
+    }
+    // 毒药: 已用解药则跳过; 否则若有预言家报出的狼人,有概率毒杀
+    if (state.witchPotions.poison && !state.nightActions.witchHealed && state.claimedSeer) {
+      const seer = getPlayer(state.claimedSeer);
+      const notes = seer ? seer._notes : {};
+      const wolfIds = Object.keys(notes).filter(id => notes[id] === 'wolf').map(Number);
+      if (wolfIds.length && Math.random() < 0.5) {
+        const target = wolfIds.find(id => id !== witch.id && getPlayer(id).alive);
+        if (target) {
+          state.nightActions.witchPoison = target;
+          state.witchPotions.poison = false;
+          logEntry(`女巫使用了毒药。`, 'night');
+        }
+      }
+    }
+  }
+
+  // 通用二选一弹窗 (返回选中的 value)
+  function askChoice(title, body, options) {
+    return new Promise(resolve => {
+      showModal({
+        title,
+        body: `<p>${body}</p>`,
+        actions: options.map(o => ({
+          text: o.text,
+          primary: o.primary,
+          onClick: () => resolve(o.value),
+        })),
+      });
+    });
+  }
+
+  /* ==================== 天亮阶段 ==================== */
+  async function dawnPhase() {
+    state.phase = 'dawn';
+    updateStatus();
+    await showPhaseBanner('☀ 天亮了', 'day');
+
+    // 计算昨夜死亡 (含死因: 是否被毒)
+    const deathList = [];
+    if (state.nightActions.wolfTarget && !state.nightActions.witchHealed) {
+      deathList.push({ id: state.nightActions.wolfTarget, poisoned: false });
+    }
+    if (state.nightActions.witchPoison) {
+      const existing = deathList.find(d => d.id === state.nightActions.witchPoison);
+      if (existing) existing.poisoned = true;
+      else deathList.push({ id: state.nightActions.witchPoison, poisoned: true });
+    }
+    state.deathsTonight = deathList;
+    deathList.forEach(d => { const p = getPlayer(d.id); if (p) p.alive = false; });
+    updateBoard();
+
+    if (deathList.length === 0) {
+      logEntry(`—— 第 ${state.round} 天 —— 天亮了,昨夜平安夜,无人死亡。`, 'day');
+      updateCenter('☀ 天亮了 — 平安夜');
+    } else {
+      const ids = deathList.map(d => d.id + '号').join('、');
+      logEntry(`—— 第 ${state.round} 天 —— 天亮了,昨夜死亡: ${ids}。`, 'death');
+      updateCenter(`☀ 天亮了 — 死亡: ${ids}`);
+    }
+
+    await sleep(1000);
+
+    // 处理猎人死亡开枪 (被毒杀的猎人无法开枪)
+    for (const d of deathList) {
+      const p = getPlayer(d.id);
+      if (p && p.role === 'hunter' && !d.poisoned) {
+        await hunterShoot(p);
+      }
+    }
+
+    // 胜负判定
+    if (checkWin()) return;
+
+    // 暂停: 让玩家阅读昨夜死亡情况后再进入白天发言
+    await waitForContinue('📖 天亮了 — 请阅读对局记录分析后再点击继续');
+
+    // 进入白天讨论
+    await daySpeakPhase();
+  }
+
+  /* ---------- 猎人开枪 ---------- */
+  async function hunterShoot(hunter) {
+    logEntry(`🏹 猎人 ${hunter.id}号 临终开枪!`, 'death');
+    const me = human();
+    if (hunter.isHuman) {
+      updateCenter('🏹 猎人请选择开枪目标');
+      const targets = alivePlayers().filter(p => p.id !== hunter.id);
+      const targetId = await selectTarget('🏹 <strong>猎枪</strong> — 请选择要带走的玩家', targets);
+      const t = getPlayer(targetId);
+      if (t) { t.alive = false; logEntry(`猎人开枪带走了 ${targetId}号 (${ROLE_DEFS[t.role].name})。`, 'death'); }
+    } else {
+      // AI 猎人: 优先射杀预言家报出的狼人
+      updateCenter('🏹 猎人正在瞄准...');
+      await sleep(900);
+      const targets = alivePlayers().filter(p => p.id !== hunter.id);
+      let target;
+      if (state.claimedSeer) {
+        const notes = getPlayer(state.claimedSeer)?._notes || {};
+        const wolves = targets.filter(t => notes[t.id] === 'wolf');
+        if (wolves.length) target = wolves[0];
+      }
+      if (!target) target = targets[Math.floor(Math.random() * targets.length)];
+      target.alive = false;
+      logEntry(`猎人 ${hunter.id}号 开枪带走了 ${target.id}号 (${ROLE_DEFS[target.role].name})。`, 'death');
+    }
+    updateBoard();
+    clearSelectable();
+    await sleep(600);
+  }
+
+  /* ==================== 白天发言阶段 ==================== */
+  async function daySpeakPhase() {
+    state.phase = 'speak';
+    updateStatus();
+    updateCenter('💬 白天发言阶段');
+    logEntry(`白天发言阶段开始,玩家依次发言。`, 'day');
+
+    const speakers = alivePlayers();
+    for (const p of speakers) {
+      // 标记当前发言人
+      board.querySelectorAll('.player-seat.speaking').forEach(s => s.classList.remove('speaking'));
+      const seat = board.querySelector(`.player-seat[data-id="${p.id}"]`);
+      if (seat) seat.classList.add('speaking');
+
+      if (p.isHuman) {
+        await humanSpeak();
+      } else {
+        await aiSpeak(p);
+      }
+    }
+    board.querySelectorAll('.player-seat.speaking').forEach(s => s.classList.remove('speaking'));
+    // 暂停: 让玩家分析所有发言后再进入投票
+    await waitForContinue('📖 发言结束 — 请分析谁像狼人后点击继续,即将开始投票放逐');
+    await dayVotePhase();
+  }
+
+  // 人类玩家发言: 自由输入文字, 或跳过
+  async function humanSpeak() {
+    return new Promise(resolve => {
+      showModal({
+        title: '💬 轮到你发言',
+        body: `
+          <p>请在下方输入你的发言内容,AI 会根据你的发言判断立场。</p>
+          <textarea id="speakInput" class="speak-input" rows="3" placeholder="例如:我是平民,我觉得 5 号比较可疑..."></textarea>`,
+        actions: [
+          { text: '跳过', onClick: () => {
+            logEntry(`你选择跳过发言。`, 'day');
+            resolve();
+          }},
+          { text: '发言', primary: true, onClick: () => {
+            // 读取文本框内容 (closeModal 仅隐藏弹窗, DOM 仍在, 可读取)
+            const text = $('speakInput').value.trim();
+            if (!text) {
+              logEntry(`你选择跳过发言。`, 'day');
+            } else {
+              logEntry(`你: ${text}`, 'day');
+              // 关键词检测: 若声明预言家则记录为跳预言家
+              // (AI 投票逻辑会跟随预言家 _notes, 此处仅标记身份声明)
+              if (/预言家|跳预言/.test(text)) {
+                state.claimedSeer = human().id;
+                state.claimedRole[human().id] = 'seer';
+              }
+            }
+            resolve();
+          }},
+        ],
+      });
+    });
+  }
+
+  async function aiSpeak(p) {
+    await sleep(1000);
+    const statement = generateAiStatement(p);
+    logEntry(`${p.id}号: ${statement}`, 'day');
+    await sleep(600);
+  }
+
+  // AI 发言生成 (按角色策略)
+  function generateAiStatement(p) {
+    const alive = alivePlayers().filter(t => t.id !== p.id);
+
+    // —— 狼人 ——
+    if (p.role === 'wolf') {
+      // 30% 概率悍跳预言家 (仅第一轮且尚未有人跳)
+      if (state.round === 1 && !state.claimedSeer && Math.random() < 0.35) {
+        state.claimedSeer = p.id;
+        state.claimedRole[p.id] = 'seer';
+        // 假报一个非狼人为狼
+        const goodTargets = alive.filter(t => t.role !== 'wolf');
+        const fake = goodTargets[Math.floor(Math.random() * goodTargets.length)];
+        p._notes[fake.id] = 'wolf';  // 内部假记录
+        return `我跳预言家,昨晚查验 ${fake.id}号 是狼人,请大家放逐他。`;
+      }
+      // 否则装平民,栽赃一个非狼人
+      const nonWolves = alive.filter(t => t.role !== 'wolf');
+      const accuse = nonWolves[Math.floor(Math.random() * nonWolves.length)];
+      return `我是平民,我觉得 ${accuse.id}号 发言可疑,建议放逐。`;
+    }
+
+    // —— 预言家 ——
+    if (p.role === 'seer') {
+      const notes = p._notes;
+      const wolfId = Object.keys(notes).find(id => notes[id] === 'wolf' && getPlayer(id).alive);
+      if (wolfId) {
+        state.claimedSeer = p.id;
+        state.claimedRole[p.id] = 'seer';
+        return `我是预言家,昨晚查验 ${wolfId}号 是狼人,请大家放逐他。`;
+      }
+      const goodId = Object.keys(notes).find(id => notes[id] === 'good' && getPlayer(id).alive);
+      if (goodId) {
+        state.claimedSeer = p.id;
+        state.claimedRole[p.id] = 'seer';
+        return `我是预言家,昨晚查验 ${goodId}号 是好人。`;
+      }
+      return `我先观察一下,暂不报验。`;
+    }
+
+    // —— 女巫 ——
+    if (p.role === 'witch') {
+      // 女巫通常装平民
+      const nonSelf = alive.filter(t => t.id !== p.id);
+      const accuse = nonSelf[Math.floor(Math.random() * nonSelf.length)];
+      return `我是平民,听预言家的,${accuse.id}号 我不太确定。`;
+    }
+
+    // —— 猎人 ——
+    if (p.role === 'hunter') {
+      return `我是平民,如果我有狼人会暴露,听预言家指挥。`;
+    }
+
+    // —— 平民 ——
+    if (state.claimedSeer) {
+      return `我是平民,跟随预言家 ${state.claimedSeer}号 投票。`;
+    }
+    const accuse = alive[Math.floor(Math.random() * alive.length)];
+    return `我是平民,目前没有更多信息,觉得 ${accuse.id}号 略可疑。`;
+  }
+
+  /* ==================== 投票阶段 ==================== */
+  async function dayVotePhase() {
+    state.phase = 'vote';
+    updateStatus();
+    updateCenter('🗳 投票放逐阶段');
+    logEntry(`开始投票放逐。`, 'vote');
+
+    const votes = {};  // { targetId: count }
+    alivePlayers().forEach(p => { votes[p.id] = 0; });
+
+    for (const p of alivePlayers()) {
+      board.querySelectorAll('.player-seat.speaking').forEach(s => s.classList.remove('speaking'));
+      const seat = board.querySelector(`.player-seat[data-id="${p.id}"]`);
+      if (seat) seat.classList.add('speaking');
+
+      if (p.isHuman) {
+        const targets = alivePlayers().filter(t => t.id !== p.id);
+        updateCenter('🗳 请选择放逐目标');
+        const targetId = await selectTarget('🗳 <strong>投票</strong> — 请选择要放逐的玩家', targets);
+        votes[targetId] = (votes[targetId] || 0) + 1;
+        logEntry(`${p.id}号 投票给 ${targetId}号。`, 'vote');
+      } else {
+        await sleep(450);
+        const targetId = aiVote(p);
+        votes[targetId] = (votes[targetId] || 0) + 1;
+        logEntry(`${p.id}号 投票给 ${targetId}号。`, 'vote');
+      }
+    }
+
+    board.querySelectorAll('.player-seat.speaking').forEach(s => s.classList.remove('speaking'));
+
+    // 显示票数 1.5 秒
+    showVoteCounts(votes);
+    logEntry(`票数统计: ` + Object.entries(votes).filter(([,c]) => c > 0).map(([id,c]) => `${id}号=${c}票`).join('、'), 'vote');
+    await sleep(1800);
+    clearVoteCounts();
+
+    // 找出最高票 (平票随机)
+    const maxVotes = Math.max(...Object.values(votes));
+    const topVoted = Object.keys(votes).filter(id => votes[id] === maxVotes).map(Number);
+    let exiled;
+    if (topVoted.length === 1) {
+      exiled = topVoted[0];
+    } else {
+      exiled = topVoted[Math.floor(Math.random() * topVoted.length)];
+      logEntry(`平票 (${topVoted.join('、')}),随机决定放逐 ${exiled}号。`, 'vote');
+    }
+    const exiledPlayer = getPlayer(exiled);
+    exiledPlayer.alive = false;
+    logEntry(`☯ ${exiled}号 被放逐,身份是 ${ROLE_DEFS[exiledPlayer.role].name}。`, 'death');
+    updateBoard();
+    updateCenter(`☯ ${exiled}号 被放逐 (${ROLE_DEFS[exiledPlayer.role].name})`);
+    await sleep(1200);
+
+    // 被放逐者是猎人则开枪
+    if (exiledPlayer.role === 'hunter') {
+      await hunterShoot(exiledPlayer);
+    }
+
+    if (checkWin()) return;
+
+    // 进入下一夜
+    await startNight();
+  }
+
+  // AI 投票策略
+  function aiVote(p) {
+    const alive = alivePlayers().filter(t => t.id !== p.id);
+
+    // 狼人: 不投同伴, 优先投预言家
+    if (p.role === 'wolf') {
+      const nonWolves = alive.filter(t => t.role !== 'wolf');
+      if (state.claimedSeer) {
+        const seer = nonWolves.find(t => t.id === state.claimedSeer);
+        if (seer && Math.random() < 0.65) return seer.id;
+      }
+      return nonWolves[Math.floor(Math.random() * nonWolves.length)].id;
+    }
+
+    // 预言家: 投自己报出的狼人
+    if (p.role === 'seer') {
+      const notes = p._notes;
+      const wolfId = Object.keys(notes).find(id => notes[id] === 'wolf' && alive.find(t => t.id === Number(id)));
+      if (wolfId) return Number(wolfId);
+    }
+
+    // 其他好人: 跟随预言家投狼人
+    if (state.claimedSeer) {
+      const seer = getPlayer(state.claimedSeer);
+      if (seer && seer.alive) {
+        const notes = seer._notes || {};
+        const wolfId = Object.keys(notes).find(id =>
+          notes[id] === 'wolf' && alive.find(t => t.id === Number(id)));
+        if (wolfId) return Number(wolfId);
+      }
+    }
+    // 无信息随机
+    return alive[Math.floor(Math.random() * alive.length)].id;
+  }
+
+  function showVoteCounts(votes) {
+    Object.entries(votes).forEach(([id, count]) => {
+      if (count === 0) return;
+      const seat = board.querySelector(`.player-seat[data-id="${id}"]`);
+      if (!seat) return;
+      seat.querySelector('.seat-vote').textContent = count;
+      seat.classList.add('show-votes');
+    });
+  }
+  function clearVoteCounts() {
+    board.querySelectorAll('.player-seat.show-votes').forEach(s => {
+      s.classList.remove('show-votes');
+      s.querySelector('.seat-vote').textContent = '0';
+    });
+  }
+
+  /* ==================== 胜负判定 ==================== */
+  function checkWin() {
+    const wolves = aliveWolves().length;
+    const goods = aliveGoods().length;
+    if (wolves === 0) {
+      endGame('good', '所有狼人被消灭,好人阵营胜利!');
+      return true;
+    }
+    if (wolves >= goods) {
+      endGame('wolf', '狼人数量 ≥ 好人,狼人阵营胜利!');
+      return true;
+    }
+    return false;
+  }
+
+  function endGame(winner, message) {
+    state.phase = 'end';
+    updateBoard();   // 揭示所有身份
+    updateStatus();
+    const me = human();
+    const myFaction = ROLE_DEFS[me.role].faction;
+    const won = (myFaction === winner);
+    logEntry(`★ 游戏结束 — ${message}`, 'system');
+    updateCenter(`★ 游戏结束 — ${winner === 'wolf' ? '狼人' : '好人'} 胜利`);
+    showModal({
+      title: won ? '🎉 你赢了!' : '💔 你输了',
+      body: `
+        <div class="game-over">
+          <p class="over-result ${winner === 'wolf' ? 'tag-wolf' : 'tag-good'}">${winner === 'wolf' ? '狼人阵营胜利' : '好人阵营胜利'}</p>
+          <p class="over-msg">${message}</p>
+          <p class="over-role">你的身份: ${ROLE_DEFS[me.role].name}</p>
+        </div>`,
+      actions: [
+        { text: '再来一局', primary: true, onClick: () => resetGame() },
+        { text: '返回首页', onClick: () => { window.location.href = 'index.html'; } },
+      ],
+    });
+  }
+
+  function resetGame() {
+    state.players = [];
+    state.round = 0;
+    state.phase = 'setup';
+    state.witchPotions = { heal: true, poison: true };
+    state.nightActions = { wolfTarget: null, seerCheck: null, witchHealed: false, witchPoison: null };
+    state.claimedSeer = null;
+    state.claimedRole = {};
+    state.deathsTonight = [];
+    state.log = [];
+    logList.innerHTML = '';
+    setupEmpty();
+    assignRolesAndStart();
+  }
+
+  /* ==================== 启动入口 ==================== */
+  function assignRolesAndStart() {
+    // 随机分配 9 个身份
+    const roles = shuffle(ROLE_POOL);
+    state.players.forEach((p, i) => { p.role = roles[i]; });
+    updateBoard();
+    updateStatus();
+    // 显示身份揭晓弹窗
+    showRoleReveal();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setupEmpty();
+    $('startBtn').addEventListener('click', () => {
+      $('startBtn').style.display = 'none';
+      assignRolesAndStart();
+    });
+  });
+
+  // 控制台彩蛋
+  console.log('%c☾ 单机狼人杀 · 暗夜对局',
+    'color:#e63946;font-size:18px;font-weight:bold;');
+})();
+
+</script>
+</body>
+</html>
